@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Register for Canva Fest 2026. Fill in your details and secure your spot in the biggest design event of the year.">
+  <title>Register — Canva Fest 2026</title>
+  <link rel="icon" href="assets/Canva.png" type="image/png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  
+  <div class="skeleton-wrapper" id="skeletonLoader">
+    <div class="skeleton-pulse">
+      <div class="skeleton-logo"></div>
+    </div>
+    <div class="skeleton-bar skeleton-bar--lg"></div>
+    <div class="skeleton-bar skeleton-bar--md"></div>
+    <div class="skeleton-bar skeleton-bar--sm"></div>
+  </div>
+
+  
+  <div class="mesh-bg">
+    <div class="mesh-orb mesh-orb--1"></div>
+    <div class="mesh-orb mesh-orb--2"></div>
+    <div class="mesh-orb mesh-orb--3"></div>
+  </div>
+
+  <div class="glass-shards">
+    <div class="glass-shard glass-shard--1"></div>
+    <div class="glass-shard glass-shard--2"></div>
+    <div class="glass-shard glass-shard--3"></div>
+    <div class="glass-shard glass-shard--4"></div>
+    <div class="glass-shard glass-shard--5"></div>
+  </div>
+
+  
+  <nav class="nav" id="mainNav">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__brand">
+        <img src="assets/Logo.png" alt="School Logo" class="nav__logo">
+        <div class="nav__title">Canva <span>Fest</span></div>
+      </a>
+      <ul class="nav__links">
+        <li><a href="index.html" class="nav__link">Home</a></li>
+        <li><a href="index.html#about" class="nav__link">About</a></li>
+        <li><a href="index.html#details" class="nav__link">Details</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  
+  <section class="register-page">
+    <div class="register__container">
+
+      
+      <div class="register__header fade-in">
+        <a href="index.html" class="register__back">
+          <span class="register__back-icon">←</span>
+          Back to Home
+        </a>
+        <h1 class="register__title">Register for <span style="background: var(--canva-gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Canva Fest</span></h1>
+        <p class="register__subtitle">Fill in your details to secure your spot ✦</p>
+      </div>
+
+      
+      <div class="glass-card glass-card--strong register__form-card fade-in fade-in-delay-1" id="formCard">
+        <form id="registerForm" novalidate>
+
+          
+          <div class="form-group">
+            <label class="form-group__label" for="studentName">Full Name</label>
+            <input 
+              type="text" 
+              id="studentName" 
+              class="form-group__input" 
+              placeholder="Enter your full name"
+              autocomplete="name"
+              required
+            >
+            <p class="form-group__error" id="nameError">Please enter your full name</p>
+          </div>
+
+          
+          <div class="form-group">
+            <label class="form-group__label" for="studentClass">Class</label>
+            <select id="studentClass" class="form-group__select" required>
+              <option value="">Select your class</option>
+              <option value="6">Class 6</option>
+              <option value="7">Class 7</option>
+              <option value="8">Class 8</option>
+              <option value="9">Class 9</option>
+              <option value="10">Class 10</option>
+              <option value="11">Class 11</option>
+              <option value="12">Class 12</option>
+            </select>
+            <p class="form-group__error" id="classError">Please select your class</p>
+          </div>
+
+          
+          <div class="form-group">
+            <label class="form-group__label" for="studentSection">Section</label>
+            <select id="studentSection" class="form-group__select" required>
+              <option value="">Select your section</option>
+              <option value="A">Section A</option>
+              <option value="B">Section B</option>
+              <option value="C">Section C</option>
+              <option value="D">Section D</option>
+            </select>
+            <p class="form-group__error" id="sectionError">Please select your section</p>
+          </div>
+
+          
+          <div class="form-group">
+            <label class="form-group__label" for="studentRegNo">Registration Number</label>
+            <input 
+              type="text" 
+              id="studentRegNo" 
+              class="form-group__input" 
+              placeholder="Enter your Reg. No (e.g., 2024-001)"
+              required
+            >
+            <p class="form-group__error" id="regNoError">Please enter your registration number</p>
+          </div>
+
+          
+          <button type="submit" class="btn btn--primary btn--submit" id="submitBtn">
+            Submit Registration
+            <span class="btn__icon">→</span>
+          </button>
+
+        </form>
+      </div>
+
+      
+      <div class="glass-card glass-card--strong success-card" id="successCard">
+        <div class="success__checkmark">✓</div>
+        <h2 class="success__title">You're Registered! 🎉</h2>
+        <p class="success__message">
+          Welcome aboard! Your registration for Canva Fest 2026 has been recorded. 
+          Get ready to unleash your creativity.
+        </p>
+
+        <div class="success__details">
+          <div class="success__detail-row">
+            <span class="success__detail-label">Name</span>
+            <span class="success__detail-value" id="successName">—</span>
+          </div>
+          <div class="success__detail-row">
+            <span class="success__detail-label">Class</span>
+            <span class="success__detail-value" id="successClass">—</span>
+          </div>
+          <div class="success__detail-row">
+            <span class="success__detail-label">Section</span>
+            <span class="success__detail-value" id="successSection">—</span>
+          </div>
+          <div class="success__detail-row">
+            <span class="success__detail-label">Reg. No</span>
+            <span class="success__detail-value" id="successRegNo">—</span>
+          </div>
+        </div>
+
+        <a href="index.html" class="btn btn--glass" style="width: 100%; justify-content: center;">
+          ← Back to Home
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  
+  <footer class="footer" style="margin-top: 0;">
+    <p class="footer__text">
+      Made By <span class="heart">♥</span> by <span>Cyber Head</span> &nbsp;·&nbsp; Estd. 1972
+    </p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+Hey Buddy 
+Today I got a Great Chance from my school to show off my Programing+AI skills.
+
+I am a Cyber Head, and i have to organize a Canva Fest Event.
+Only My Work to Organize, Collect Student and Manage.
+To collect and Sing Up/ Reg for Event, I want to create a web Service.
+
+Our Task to create a Best Web Services Only in 2 Page.
+First Page For Intor and Deatils of Event and 2nd Page for Reg, Name, CLass, Sec, Reg.No
+
+Some assest for u by Name
+
+To Flex UI - Use Skeleton Loading
+             Hogh Quality, No Color Bending
+             Fully Liquid Glass Bended With GlassMorphism
+             Colors - White and According to u ( White Becus it perfectly lyies on GlassMorphism+Liquid GLass)
+
+Human Made, Last Made By Cyber Head 
