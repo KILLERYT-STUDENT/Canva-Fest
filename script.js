@@ -121,40 +121,37 @@ function initRegistrationForm() {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    
     if (!validateForm(form)) return;
 
-    
     const formData = {
-      name: form.querySelector('#studentName').value.trim(),
-      class: form.querySelector('#studentClass').value,
-      section: form.querySelector('#studentSection').value,
-      regNo: form.querySelector('#studentRegNo').value.trim()
+      member1: {
+        name: form.querySelector('#member1Name').value.trim(),
+        class: form.querySelector('#member1Class').value,
+        section: form.querySelector('#member1Section').value,
+        regNo: form.querySelector('#member1RegNo').value.trim()
+      },
+      member2: {
+        name: form.querySelector('#member2Name').value.trim(),
+        class: form.querySelector('#member2Class').value,
+        section: form.querySelector('#member2Section').value,
+        regNo: form.querySelector('#member2RegNo').value.trim()
+      }
     };
 
-    
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="btn-spinner"></span> Submitting...';
 
     try {
-      
       await sendToTelegram(formData);
-
-      
       showSuccess(formCard, successCard, formData);
     } catch (error) {
       console.error('Telegram submission failed:', error);
-
-      
       submitBtn.disabled = false;
-      submitBtn.innerHTML = 'Submit Registration <span class="btn__icon">→</span>';
-
-      
+      submitBtn.innerHTML = 'Register Team <span class="btn__icon">→</span>';
       showToast('Submission failed. Please check your connection and try again.', 'error');
     }
   });
 
-  
   form.querySelectorAll('.form-group__input, .form-group__select').forEach(input => {
     input.addEventListener('input', () => {
       input.classList.remove('error');
@@ -167,33 +164,28 @@ function initRegistrationForm() {
 function validateForm(form) {
   let isValid = true;
 
-  const name = form.querySelector('#studentName');
-  const cls = form.querySelector('#studentClass');
-  const section = form.querySelector('#studentSection');
-  const regNo = form.querySelector('#studentRegNo');
+  for (let i = 1; i <= 2; i++) {
+    const name = form.querySelector(`#member${i}Name`);
+    const cls = form.querySelector(`#member${i}Class`);
+    const section = form.querySelector(`#member${i}Section`);
+    const regNo = form.querySelector(`#member${i}RegNo`);
 
-  
-  if (!name.value.trim()) {
-    showFieldError(name, 'Please enter your full name');
-    isValid = false;
-  }
-
-  
-  if (!cls.value) {
-    showFieldError(cls, 'Please select your class');
-    isValid = false;
-  }
-
-  
-  if (!section.value) {
-    showFieldError(section, 'Please select your section');
-    isValid = false;
-  }
-
-  
-  if (!regNo.value.trim()) {
-    showFieldError(regNo, 'Please enter your registration number');
-    isValid = false;
+    if (!name.value.trim()) {
+      showFieldError(name, `Please enter member ${i}'s name`);
+      isValid = false;
+    }
+    if (!cls.value) {
+      showFieldError(cls, 'Select class');
+      isValid = false;
+    }
+    if (!section.value) {
+      showFieldError(section, 'Select section');
+      isValid = false;
+    }
+    if (!regNo.value.trim()) {
+      showFieldError(regNo, 'Please enter reg. number');
+      isValid = false;
+    }
   }
 
   return isValid;
@@ -206,26 +198,63 @@ function showFieldError(input, message) {
     errorEl.textContent = message;
     errorEl.classList.add('visible');
   }
-
-  
   input.style.animation = 'none';
   void input.offsetWidth;
   input.style.animation = 'shake 0.4s ease';
 }
 
 function showSuccess(formCard, successCard, data) {
-  
-  document.getElementById('successName').textContent = data.name;
-  document.getElementById('successClass').textContent = `Class ${data.class}`;
-  document.getElementById('successSection').textContent = `Section ${data.section}`;
-  document.getElementById('successRegNo').textContent = data.regNo;
+  document.getElementById('successMember1').textContent = `${data.member1.name} (${data.member1.class}-${data.member1.section})`;
+  document.getElementById('successMember2').textContent = `${data.member2.name} (${data.member2.class}-${data.member2.section})`;
 
-  
   formCard.style.display = 'none';
   successCard.classList.add('visible');
-
-  
   launchConfetti();
+}
+
+async function sendToTelegram(data) {
+  const timestamp = new Date().toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  });
+
+  const message = `
+📋 *New Canva Fest Registration*
+━━━━━━━━━━━━━━━━━━━━━
+
+👤 *Member 1*
+    Name: ${escapeMarkdown(data.member1.name)}
+    Class: ${escapeMarkdown(data.member1.class)} \\| Section: ${escapeMarkdown(data.member1.section)}
+    Reg No: ${escapeMarkdown(data.member1.regNo)}
+
+👤 *Member 2*
+    Name: ${escapeMarkdown(data.member2.name)}
+    Class: ${escapeMarkdown(data.member2.class)} \\| Section: ${escapeMarkdown(data.member2.section)}
+    Reg No: ${escapeMarkdown(data.member2.regNo)}
+
+🕐 *Submitted:* ${escapeMarkdown(timestamp)}
+━━━━━━━━━━━━━━━━━━━━━
+  `.trim();
+
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: TELEGRAM_CHAT_ID,
+      text: message,
+      parse_mode: 'MarkdownV2'
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(`Telegram API error: ${response.status} — ${errorData.description || 'Unknown error'}`);
+  }
+
+  return response.json();
 }
 
 function launchConfetti() {
@@ -277,46 +306,6 @@ shakeStyle.textContent = `
   }
 `;
 document.head.appendChild(shakeStyle);
-
-async function sendToTelegram(data) {
-  const timestamp = new Date().toLocaleString('en-IN', {
-    timeZone: 'Asia/Kolkata',
-    dateStyle: 'medium',
-    timeStyle: 'short'
-  });
-
-  const message = `
-📋 *New Canva Fest Registration*
-━━━━━━━━━━━━━━━━━━━━━
-
-👤 *Name:* ${escapeMarkdown(data.name)}
-🏫 *Class:* ${escapeMarkdown(data.class)}
-📌 *Section:* ${escapeMarkdown(data.section)}
-🔢 *Reg\\. No:* ${escapeMarkdown(data.regNo)}
-
-🕐 *Submitted:* ${escapeMarkdown(timestamp)}
-━━━━━━━━━━━━━━━━━━━━━
-  `.trim();
-
-  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: TELEGRAM_CHAT_ID,
-      text: message,
-      parse_mode: 'MarkdownV2'
-    })
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(`Telegram API error: ${response.status} — ${errorData.description || 'Unknown error'}`);
-  }
-
-  return response.json();
-}
 
 function escapeMarkdown(text) {
   return String(text).replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, '\\$1');

@@ -871,7 +871,7 @@ input, select, textarea {
 
 .register__container {
   width: 100%;
-  max-width: 520px;
+  max-width: 600px;
 }
 
 .register__header {
@@ -916,6 +916,30 @@ input, select, textarea {
 
 .register__form-card {
   padding: var(--space-2xl);
+}
+
+.team-member-section {
+  margin-top: var(--space-xl);
+  padding-top: var(--space-xl);
+  border-top: 1px solid var(--glass-border);
+}
+
+.team-member-label {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: var(--space-lg);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.form-group__select.error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
 }
 
 .form-group {
@@ -1185,6 +1209,10 @@ input, select, textarea {
 
   .register__form-card {
     padding: var(--space-lg);
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
   }
 
   .hero__logos {
