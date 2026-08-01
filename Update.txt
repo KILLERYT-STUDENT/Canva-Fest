@@ -1,0 +1,11 @@
+There is Update in the Web That is described Below.
+
+1 - Increasing teams to 12 to 15.
+2 - On the regis page, there will be a option in which student want to participate.
+    (i) - Poster Making
+    (ii) - PPT 
+    (iii) - Video Making
+This 3 category sys will look like a MCQ, and only 1 can select. Then the student stubmit it show also on my Telegram Bot that what STudent Selected.
+
+One More thing i want to add on this web, that when i will start the registration, then there will be thing to show that how many seats left to participate, Like a count down, max is 15, so it will start from 15 and a if a pair of student register, then on the regis page show that 14 seats are abvilable, and when it reaches 0, then the regis form automatically close and there will be written that "Registration closed", if you want to participate, then Connect to Head Boy.
+Classes will be from 6 - 12, section are A to D,    

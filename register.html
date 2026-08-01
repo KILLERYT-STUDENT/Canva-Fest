@@ -62,11 +62,61 @@
         </a>
         <h1 class="register__title">Register for <span style="background: var(--canva-gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Canva Fest</span></h1>
         <p class="register__subtitle">Register your team of 2 to secure your spot ✦</p>
+
+        <!-- Seats Availability Counter Banner -->
+        <div class="seats-banner" id="seatsBanner">
+          <div class="seats-info">
+            <span class="seats-badge" id="seatsBadge">
+              <span class="seats-badge__dot"></span>
+              <span id="seatsBadgeText">15 Seats Available</span>
+            </span>
+            <span class="seats-text" id="seatsText">Max 15 Teams</span>
+          </div>
+          <div class="seats-progress-track">
+            <div class="seats-progress-fill" id="seatsProgressFill" style="width: 100%;"></div>
+          </div>
+        </div>
       </div>
 
       <div class="glass-card glass-card--strong register__form-card fade-in fade-in-delay-1" id="formCard">
         <form id="registerForm" novalidate>
 
+          <!-- MCQ Category Selector -->
+          <div class="category-section">
+            <div class="category-section__title">
+              <span>🎯 Select Participation Category</span>
+              <span class="category-section__tag">Choose 1</span>
+            </div>
+            <p class="form-group__error" id="categoryError" style="margin-top: 4px;">Please select a category to participate</p>
+
+            <div class="mcq-grid" id="mcqGrid">
+
+              <label class="mcq-card">
+                <input type="radio" name="eventCategory" value="Poster Making">
+                <div class="mcq-card__icon">🖼️</div>
+                <div class="mcq-card__name">Poster Making</div>
+                <div class="mcq-card__desc">Graphic & Visual Poster</div>
+                <div class="mcq-card__radio-badge"></div>
+              </label>
+
+              <label class="mcq-card">
+                <input type="radio" name="eventCategory" value="PPT">
+                <div class="mcq-card__icon">📊</div>
+                <div class="mcq-card__name">PPT</div>
+                <div class="mcq-card__desc">Presentation Design</div>
+                <div class="mcq-card__radio-badge"></div>
+              </label>
+
+              <label class="mcq-card">
+                <input type="radio" name="eventCategory" value="Video Making">
+                <div class="mcq-card__icon">🎥</div>
+                <div class="mcq-card__name">Video Making</div>
+                <div class="mcq-card__desc">Animation & Editing</div>
+                <div class="mcq-card__radio-badge"></div>
+              </label>
+
+            </div>
+          </div>
 
           <div class="team-member-section">
             <div class="team-member-label">👤 Member 1</div>
@@ -109,6 +159,12 @@
               <label class="form-group__label" for="member1RegNo">Registration No.</label>
               <input type="text" id="member1RegNo" class="form-group__input" placeholder="e.g., 2024-001" required>
               <p class="form-group__error">Please enter reg. number</p>
+            </div>
+
+            <div class="form-group">
+              <label class="form-group__label" for="member1Phone">Phone Number</label>
+              <input type="tel" id="member1Phone" class="form-group__input" placeholder="e.g., 9876543210" maxlength="10" required>
+              <p class="form-group__error">Please enter a valid 10-digit phone number</p>
             </div>
           </div>
 
@@ -154,6 +210,12 @@
               <input type="text" id="member2RegNo" class="form-group__input" placeholder="e.g., 2024-002" required>
               <p class="form-group__error">Please enter reg. number</p>
             </div>
+
+            <div class="form-group">
+              <label class="form-group__label" for="member2Phone">Phone Number</label>
+              <input type="tel" id="member2Phone" class="form-group__input" placeholder="e.g., 9876543210" maxlength="10" required>
+              <p class="form-group__error">Please enter a valid 10-digit phone number</p>
+            </div>
           </div>
 
           <button type="submit" class="btn btn--primary btn--submit" id="submitBtn">
@@ -174,13 +236,43 @@
 
         <div class="success__details">
           <div class="success__detail-row">
+            <span class="success__detail-label">Category</span>
+            <span class="success__detail-value" id="successCategory">—</span>
+          </div>
+          <div class="success__detail-row">
             <span class="success__detail-label">Member 1</span>
             <span class="success__detail-value" id="successMember1">—</span>
+          </div>
+          <div class="success__detail-row">
+            <span class="success__detail-label">Member 1 Phone</span>
+            <span class="success__detail-value" id="successMember1Phone">—</span>
           </div>
           <div class="success__detail-row">
             <span class="success__detail-label">Member 2</span>
             <span class="success__detail-value" id="successMember2">—</span>
           </div>
+          <div class="success__detail-row">
+            <span class="success__detail-label">Member 2 Phone</span>
+            <span class="success__detail-value" id="successMember2Phone">—</span>
+          </div>
+        </div>
+
+        <a href="index.html" class="btn btn--glass" style="width: 100%; justify-content: center;">
+          ← Back to Home
+        </a>
+      </div>
+
+      <!-- Registration Closed View -->
+      <div class="glass-card glass-card--strong closed-card" id="closedCard">
+        <div class="closed__icon">🔒</div>
+        <h2 class="closed__title">Registration Closed</h2>
+        <p class="closed__subtitle">
+          All 15 team spots for Canva Fest 2026 have been filled!
+        </p>
+
+        <div class="closed__contact-box">
+          <div class="closed__contact-title">Need Assistance or Want to Join?</div>
+          <div class="closed__contact-text">Connect to Cyber Head or Head Prefect</div>
         </div>
 
         <a href="index.html" class="btn btn--glass" style="width: 100%; justify-content: center;">
@@ -194,7 +286,7 @@
   
   <footer class="footer" style="margin-top: 0;">
     <p class="footer__text">
-      Made By <span class="heart">♥</span> by <span>Cyber Head</span> &nbsp;·&nbsp; Estd. 1972
+      Made By <span class="heart">♥</span> by <span>Cyber Head & Head Prefect</span> &nbsp;·&nbsp; Estd. 1972
     </p>
   </footer>
 

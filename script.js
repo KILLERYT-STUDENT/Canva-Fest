@@ -4,11 +4,137 @@ document.addEventListener('DOMContentLoaded', () => {
   initFadeInObserver();
   initRippleButtons();
 
-  
+  initSeatsManager();
+
   if (document.getElementById('registerForm')) {
     initRegistrationForm();
   }
 });
+
+const MAX_SEATS = 15;
+const STORAGE_KEY_REGISTERED = 'canva_fest_registered_count';
+
+function getRegisteredCount() {
+  const stored = localStorage.getItem(STORAGE_KEY_REGISTERED);
+  return stored ? parseInt(stored, 10) : 0;
+}
+
+function getRemainingSeats() {
+  return Math.max(0, MAX_SEATS - getRegisteredCount());
+}
+
+function incrementRegisteredCount() {
+  const current = getRegisteredCount();
+  localStorage.setItem(STORAGE_KEY_REGISTERED, current + 1);
+}
+
+function resetSeats() {
+  localStorage.removeItem(STORAGE_KEY_REGISTERED);
+  updateSeatsUI();
+  const formCard = document.getElementById('formCard');
+  const closedCard = document.getElementById('closedCard');
+  const seatsBanner = document.getElementById('seatsBanner');
+
+  if (formCard && closedCard) {
+    formCard.style.display = 'block';
+    if (seatsBanner) seatsBanner.style.display = 'flex';
+    closedCard.classList.remove('visible');
+  }
+
+  if (typeof showToast === 'function') {
+    showToast('⚡ Seats counter reset to 15!', 'info');
+  }
+}
+window.resetSeats = resetSeats;
+
+function initSeatsManager() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('reset') || urlParams.has('resetseats')) {
+    resetSeats();
+  }
+
+  updateSeatsUI();
+  initFooterSecretReset();
+}
+
+function initFooterSecretReset() {
+  const footerText = document.querySelector('.footer__text');
+  if (!footerText) return;
+
+  let clickCount = 0;
+  let clickTimer = null;
+
+  footerText.addEventListener('click', () => {
+    clickCount++;
+    clearTimeout(clickTimer);
+
+    if (clickCount >= 3) {
+      resetSeats();
+      clickCount = 0;
+    } else {
+      clickTimer = setTimeout(() => {
+        clickCount = 0;
+      }, 1000);
+    }
+  });
+}
+
+function updateSeatsUI() {
+  const remaining = getRemainingSeats();
+  const registered = getRegisteredCount();
+  const percentage = Math.max(0, Math.min(100, (remaining / MAX_SEATS) * 100));
+
+  const seatsBadgeText = document.getElementById('seatsBadgeText');
+  const seatsText = document.getElementById('seatsText');
+  const seatsBadge = document.getElementById('seatsBadge');
+  const seatsProgressFill = document.getElementById('seatsProgressFill');
+
+  if (seatsBadgeText) {
+    if (remaining <= 0) {
+      seatsBadgeText.textContent = '0 Seats Left';
+      if (seatsBadge) seatsBadge.classList.add('seats-badge--urgent');
+    } else if (remaining === 1) {
+      seatsBadgeText.textContent = 'Only 1 Seat Left!';
+      if (seatsBadge) seatsBadge.classList.add('seats-badge--urgent');
+    } else {
+      seatsBadgeText.textContent = `${remaining} Seats Available`;
+      if (seatsBadge && remaining > 5) seatsBadge.classList.remove('seats-badge--urgent');
+    }
+  }
+
+  if (seatsText) {
+    seatsText.textContent = `Max 15 Teams · ${registered} Registered`;
+  }
+
+  if (seatsProgressFill) {
+    seatsProgressFill.style.width = `${percentage}%`;
+  }
+
+  const heroBadgeText = document.getElementById('heroBadgeText');
+  if (heroBadgeText) {
+    if (remaining <= 0) {
+      heroBadgeText.textContent = 'Registrations Closed (0 Seats Left)';
+    } else {
+      heroBadgeText.textContent = `Registrations Open (${remaining} Seats Left)`;
+    }
+  }
+
+  const formCard = document.getElementById('formCard');
+  const closedCard = document.getElementById('closedCard');
+  const seatsBanner = document.getElementById('seatsBanner');
+
+  if (formCard && closedCard) {
+    if (remaining <= 0) {
+      formCard.style.display = 'none';
+      if (seatsBanner) seatsBanner.style.display = 'none';
+      closedCard.classList.add('visible');
+    } else {
+      formCard.style.display = 'block';
+      if (seatsBanner) seatsBanner.style.display = 'flex';
+      closedCard.classList.remove('visible');
+    }
+  }
+}
 
 function initSkeletonLoading() {
   const skeleton = document.querySelector('.skeleton-wrapper');
@@ -118,23 +244,35 @@ function initRegistrationForm() {
   const successCard = document.getElementById('successCard');
   const submitBtn = document.getElementById('submitBtn');
 
+  initMCQCards(form);
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    if (getRemainingSeats() <= 0) {
+      updateSeatsUI();
+      return;
+    }
+
     if (!validateForm(form)) return;
 
+    const selectedCategoryInput = form.querySelector('input[name="eventCategory"]:checked');
+
     const formData = {
+      category: selectedCategoryInput ? selectedCategoryInput.value : 'Not Selected',
       member1: {
         name: form.querySelector('#member1Name').value.trim(),
         class: form.querySelector('#member1Class').value,
         section: form.querySelector('#member1Section').value,
-        regNo: form.querySelector('#member1RegNo').value.trim()
+        regNo: form.querySelector('#member1RegNo').value.trim(),
+        phone: form.querySelector('#member1Phone').value.trim()
       },
       member2: {
         name: form.querySelector('#member2Name').value.trim(),
         class: form.querySelector('#member2Class').value,
         section: form.querySelector('#member2Section').value,
-        regNo: form.querySelector('#member2RegNo').value.trim()
+        regNo: form.querySelector('#member2RegNo').value.trim(),
+        phone: form.querySelector('#member2Phone').value.trim()
       }
     };
 
@@ -143,6 +281,8 @@ function initRegistrationForm() {
 
     try {
       await sendToTelegram(formData);
+      incrementRegisteredCount();
+      updateSeatsUI();
       showSuccess(formCard, successCard, formData);
     } catch (error) {
       console.error('Telegram submission failed:', error);
@@ -161,14 +301,52 @@ function initRegistrationForm() {
   });
 }
 
+function initMCQCards(form) {
+  const mcqCards = form.querySelectorAll('.mcq-card');
+  const categoryError = document.getElementById('categoryError');
+
+  mcqCards.forEach(card => {
+    const radio = card.querySelector('input[type="radio"]');
+
+    card.addEventListener('click', () => {
+      mcqCards.forEach(c => {
+        c.classList.remove('selected', 'error');
+      });
+
+      card.classList.add('selected');
+      radio.checked = true;
+
+      if (categoryError) {
+        categoryError.classList.remove('visible');
+      }
+    });
+  });
+}
+
 function validateForm(form) {
   let isValid = true;
+
+  const selectedCategory = form.querySelector('input[name="eventCategory"]:checked');
+  const categoryError = document.getElementById('categoryError');
+  const mcqCards = form.querySelectorAll('.mcq-card');
+
+  if (!selectedCategory) {
+    isValid = false;
+    if (categoryError) categoryError.classList.add('visible');
+    mcqCards.forEach(card => card.classList.add('error'));
+  } else {
+    if (categoryError) categoryError.classList.remove('visible');
+    mcqCards.forEach(card => card.classList.remove('error'));
+  }
+
+  const phoneRegex = /^\d{10}$/;
 
   for (let i = 1; i <= 2; i++) {
     const name = form.querySelector(`#member${i}Name`);
     const cls = form.querySelector(`#member${i}Class`);
     const section = form.querySelector(`#member${i}Section`);
     const regNo = form.querySelector(`#member${i}RegNo`);
+    const phone = form.querySelector(`#member${i}Phone`);
 
     if (!name.value.trim()) {
       showFieldError(name, `Please enter member ${i}'s name`);
@@ -186,12 +364,17 @@ function validateForm(form) {
       showFieldError(regNo, 'Please enter reg. number');
       isValid = false;
     }
+    if (!phone || !phoneRegex.test(phone.value.trim())) {
+      showFieldError(phone, `Please enter a valid 10-digit phone number`);
+      isValid = false;
+    }
   }
 
   return isValid;
 }
 
 function showFieldError(input, message) {
+  if (!input) return;
   input.classList.add('error');
   const errorEl = input.parentElement.querySelector('.form-group__error');
   if (errorEl) {
@@ -204,10 +387,21 @@ function showFieldError(input, message) {
 }
 
 function showSuccess(formCard, successCard, data) {
-  document.getElementById('successMember1').textContent = `${data.member1.name} (${data.member1.class}-${data.member1.section})`;
-  document.getElementById('successMember2').textContent = `${data.member2.name} (${data.member2.class}-${data.member2.section})`;
+  const categoryEl = document.getElementById('successCategory');
+  if (categoryEl) categoryEl.textContent = data.category;
+
+  document.getElementById('successMember1').textContent = `${data.member1.name} (Class ${data.member1.class}-${data.member1.section}, Reg: ${data.member1.regNo})`;
+  const m1PhoneEl = document.getElementById('successMember1Phone');
+  if (m1PhoneEl) m1PhoneEl.textContent = data.member1.phone;
+
+  document.getElementById('successMember2').textContent = `${data.member2.name} (Class ${data.member2.class}-${data.member2.section}, Reg: ${data.member2.regNo})`;
+  const m2PhoneEl = document.getElementById('successMember2Phone');
+  if (m2PhoneEl) m2PhoneEl.textContent = data.member2.phone;
 
   formCard.style.display = 'none';
+  const seatsBanner = document.getElementById('seatsBanner');
+  if (seatsBanner) seatsBanner.style.display = 'none';
+
   successCard.classList.add('visible');
   launchConfetti();
 }
@@ -219,20 +413,27 @@ async function sendToTelegram(data) {
     timeStyle: 'short'
   });
 
+  const remaining = getRemainingSeats() - 1;
+
   const message = `
-📋 *New Canva Fest Registration*
+🎨 *New Canva Fest Registration*
 ━━━━━━━━━━━━━━━━━━━━━
+
+🎯 *Selected Category:* ${escapeMarkdown(data.category)}
 
 👤 *Member 1*
     Name: ${escapeMarkdown(data.member1.name)}
     Class: ${escapeMarkdown(data.member1.class)} \\| Section: ${escapeMarkdown(data.member1.section)}
     Reg No: ${escapeMarkdown(data.member1.regNo)}
+    📱 Phone: ${escapeMarkdown(data.member1.phone)}
 
 👤 *Member 2*
     Name: ${escapeMarkdown(data.member2.name)}
     Class: ${escapeMarkdown(data.member2.class)} \\| Section: ${escapeMarkdown(data.member2.section)}
     Reg No: ${escapeMarkdown(data.member2.regNo)}
+    📱 Phone: ${escapeMarkdown(data.member2.phone)}
 
+⚡ *Seats Left After This Reg:* ${remaining < 0 ? 0 : remaining} / ${MAX_SEATS}
 🕐 *Submitted:* ${escapeMarkdown(timestamp)}
 ━━━━━━━━━━━━━━━━━━━━━
   `.trim();

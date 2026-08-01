@@ -43,15 +43,14 @@
         <div class="nav__title">Canva <span>Fest</span></div>
       </a>
       <ul class="nav__links">
-        <li><a href="#about" class="nav__link">About</a></li>
-        <li><a href="#details" class="nav__link">Details</a></li>
-        <li><a href="#team" class="nav__link">Team</a></li>
+        <li><a href="#details" class="nav__link">When & Where</a></li>
+        <li><a href="#categories" class="nav__link">Categories</a></li>
         <li><a href="register.html" class="btn btn--primary" style="padding: 10px 24px; font-size: 0.875rem;">Register →</a></li>
       </ul>
     </div>
   </nav>
 
-  
+  <!-- Hero Section -->
   <section class="hero" id="hero">
     <div class="hero__content">
 
@@ -61,9 +60,9 @@
         <img src="assets/Canva.png" alt="Canva Logo" class="hero__logo-img">
       </div>
 
-      <div class="hero__badge fade-in fade-in-delay-1">
-        <span class="hero__badge-dot"></span>
-        Registrations Open
+      <div class="hero__badge fade-in fade-in-delay-1" id="heroBadge">
+        <span class="hero__badge-dot" id="heroBadgeDot"></span>
+        <span id="heroBadgeText">Registrations Open (15 Seats Left)</span>
       </div>
 
       <h1 class="hero__title fade-in fade-in-delay-2">
@@ -80,7 +79,7 @@
           Register Now
           <span class="btn__icon">→</span>
         </a>
-        <a href="#about" class="btn btn--glass">
+        <a href="#details" class="btn btn--glass">
           Learn More
         </a>
       </div>
@@ -88,41 +87,13 @@
     </div>
   </section>
 
-  
-  <section class="section" id="about">
-    <div class="section__header fade-in">
-      <span class="section__label">✦ What is Canva Fest?</span>
-      <h2 class="section__title">Design. Create. Inspire.</h2>
-      <p class="section__description">
-        A one-of-a-kind creative design competition and workshop for students to explore and master Canva.
-      </p>
-    </div>
-
-    <div class="glass-card glass-card--strong about__card fade-in">
-      <div class="about__image-wrapper">
-        <img src="assets/Canva.png" alt="Canva" class="about__image">
-      </div>
-      <div class="about__text">
-        <h3>Your Canvas, Your Rules</h3>
-        <p>
-          Canva Fest is a creative playground where students get to explore the power of visual design using Canva — 
-          the world's favorite design platform. Whether you're a beginner or a design pro, this is your chance to shine.
-        </p>
-        <p>
-          From stunning posters to eye-catching presentations, participants will compete in exciting design challenges 
-          that test creativity, aesthetic sense, and speed. Winners walk away with recognition, certificates, and bragging rights!
-        </p>
-      </div>
-    </div>
-  </section>
-
-  
+  <!-- 1st Section after Hero: When & Where -->
   <section class="section" id="details">
     <div class="section__header fade-in">
-      <span class="section__label"> Event Details</span>
+      <span class="section__label">📍 Event Details</span>
       <h2 class="section__title">When & Where</h2>
       <p class="section__description">
-        Mark your calendars and get ready for an unforgettable experience.
+        Mark your calendars and get ready for an unforgettable design experience.
       </p>
     </div>
 
@@ -130,18 +101,18 @@
       <div class="glass-card detail-card fade-in fade-in-delay-1">
         <div class="detail-card__icon">📅</div>
         <div class="detail-card__title">Date</div>
-        <div class="detail-card__value">Coming Soon</div>
+        <div class="detail-card__value">26 August 2026</div>
       </div>
 
       <div class="glass-card detail-card fade-in fade-in-delay-2">
         <div class="detail-card__icon">⏰</div>
         <div class="detail-card__title">Time</div>
-        <div class="detail-card__value">To Be Announced</div>
+        <div class="detail-card__value"> 1st Period </div>
       </div>
 
       <div class="glass-card detail-card fade-in fade-in-delay-3">
         <div class="detail-card__icon">📍</div>
-        <div class="detail-card__title">Venue</div>
+        <div class="detail-card__title"> Optional - 1 </div>
         <div class="detail-card__value">School Campus</div>
       </div>
 
@@ -153,39 +124,62 @@
     </div>
   </section>
 
-  
-  <section class="section" id="team">
+  <!-- 2nd Section: Competition Categories (Replaces old What is Canva & Team sections) -->
+  <section class="section" id="categories">
     <div class="section__header fade-in">
-      <span class="section__label">🤝 Join the Community</span>
-      <h2 class="section__title">Better Together</h2>
+      <span class="section__label">✦ 3 Competition Categories</span>
+      <h2 class="section__title">Choose Your Creative Medium</h2>
       <p class="section__description">
-        Great things happen when creative minds come together. Join us and be part of something amazing.
+        Select 1 category for your team of 2 and showcase your design power in Canva.
       </p>
     </div>
 
-    <div class="glass-card glass-card--strong teammates__card fade-in">
-      <div class="teammates__image-wrapper">
-        <img src="assets/Teammateslogo.png" alt="Team celebration" class="teammates__image">
-      </div>
-      <div class="teammates__text">
-        <h3>Collaborate & Celebrate</h3>
-        <p>
-          Canva Fest isn't just a competition — it's a celebration of creativity. Work alongside fellow students, 
-          share ideas, learn new design techniques, and build connections that last beyond the event. 
-          Whether you're flying solo or teaming up, there's a spot for everyone.
+    <div class="categories-showcase-grid">
+
+      <!-- Category 1: Poster Making -->
+      <div class="glass-card glass-card--strong cat-showcase-card fade-in fade-in-delay-1">
+        <div class="cat-showcase-icon">🖼️</div>
+        <h3 class="cat-showcase-title">Poster Making</h3>
+        <p class="cat-showcase-desc">
+          Create striking digital posters using Canva's layout tools. 
+          Master typography, color harmony, and visual hierarchy in this design challenge.
         </p>
-        <a href="register.html" class="btn btn--primary">
-          Join Now
-          <span class="btn__icon">→</span>
-        </a>
       </div>
+
+      <!-- Category 2: PPT -->
+      <div class="glass-card glass-card--strong cat-showcase-card fade-in fade-in-delay-2">
+        <div class="cat-showcase-icon">📊</div>
+        <h3 class="cat-showcase-title">PPT (Presentation)</h3>
+        <p class="cat-showcase-desc">
+          Craft sleek, multi-slide decks that present ideas clearly. 
+          Focus on aesthetic slide transitions, modern templates, and structured data layouts.
+        </p>
+      </div>
+
+      <!-- Category 3: Video Making -->
+      <div class="glass-card glass-card--strong cat-showcase-card fade-in fade-in-delay-3">
+        <div class="cat-showcase-icon">🎥</div>
+        <h3 class="cat-showcase-title">Video Making</h3>
+        <p class="cat-showcase-desc">
+          Produce engaging short video edits and motion graphics. 
+          Combine audio, smooth transitions, and visual effects into captivating video content.
+        </p>
+      </div>
+
+    </div>
+
+    <div style="text-align: center; margin-top: var(--space-2xl);" class="fade-in">
+      <a href="register.html" class="btn btn--primary">
+        Register Team for Event
+        <span class="btn__icon">→</span>
+      </a>
     </div>
   </section>
 
   
   <footer class="footer">
     <p class="footer__text">
-      Made By <span class="heart">♥</span> by <span>Cyber Head</span> &nbsp;·&nbsp;
+      Made By <span class="heart">♥</span> by <span>Cyber Head & head Prefect</span> &nbsp;·&nbsp;
     </p>
   </footer>
 
