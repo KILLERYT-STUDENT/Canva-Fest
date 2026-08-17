@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initFadeInObserver();
   initRippleButtons();
 
-  // Initialize remote seat counter (syncs across devices via Telegram)
   initSeatsManager();
 
   if (document.getElementById('registerForm')) {
@@ -12,18 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* ═══════════════════════════════════════════════
-   REMOTE SEAT COUNTER — Telegram Pinned Message
-   Syncs across ALL devices in real-time
-   ═══════════════════════════════════════════════ */
-
 const MAX_SEATS = 15;
 const TELEGRAM_BOT_TOKEN = '8784295656:AAH-NTy1SBqH8PmdyHUckPl3rZ1iDzRzM5I';
 const TELEGRAM_CHAT_ID = '5816487553';
 const COUNTER_PREFIX = 'CANVA_FEST_COUNTER:';
 const STORAGE_KEY_MY_REG = 'canva_fest_my_registration';
 
-// ─── Read counter from Telegram pinned message ───
 async function fetchRemoteSeats() {
   try {
     const res = await fetch(
@@ -51,7 +44,6 @@ async function fetchRemoteSeats() {
   }
 }
 
-// ─── Initialize counter (send + pin message) ───
 async function initializeRemoteCounter(registeredCount) {
   try {
     const res = await fetch(
@@ -67,7 +59,7 @@ async function initializeRemoteCounter(registeredCount) {
     );
     const data = await res.json();
     if (data.ok) {
-      // Pin the counter message
+
       await fetch(
         `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/pinChatMessage`,
         {
@@ -92,13 +84,12 @@ async function initializeRemoteCounter(registeredCount) {
   return null;
 }
 
-// ─── Update counter (edit the pinned message) ───
 async function updateRemoteCounter(newRegisteredCount, messageId) {
   try {
-    // Re-fetch to get latest count (minimize race conditions)
+
     const latest = await fetchRemoteSeats();
     const actualMsgId = latest ? latest.messageId : messageId;
-    
+
     await fetch(
       `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`,
       {
@@ -116,10 +107,8 @@ async function updateRemoteCounter(newRegisteredCount, messageId) {
   }
 }
 
-// ─── Current counter state (cached after fetch) ───
 let currentCounterState = { registered: 0, remaining: MAX_SEATS, messageId: null };
 
-// ─── Check if current user already registered ───
 function hasAlreadyRegistered() {
   return localStorage.getItem(STORAGE_KEY_MY_REG) !== null;
 }
@@ -133,17 +122,13 @@ function saveMyRegistration(data) {
   localStorage.setItem(STORAGE_KEY_MY_REG, JSON.stringify(data));
 }
 
-// ─── Seats Manager Init ───
 async function initSeatsManager() {
   const urlParams = new URLSearchParams(window.location.search);
 
-  // Admin URL helpers:
-  // 1. ?clearreg -> clears local test registration from this browser
   if (urlParams.has('clearreg')) {
     localStorage.removeItem(STORAGE_KEY_MY_REG);
   }
 
-  // 2. ?setregistered=4 -> sets exact registered count in Telegram
   if (urlParams.has('setregistered')) {
     const targetCount = parseInt(urlParams.get('setregistered'), 10);
     if (!isNaN(targetCount) && targetCount >= 0 && targetCount <= MAX_SEATS) {
@@ -157,20 +142,17 @@ async function initSeatsManager() {
     }
   }
 
-  // 3. ?reset or ?resetseats -> resets to 0
   if (urlParams.has('reset') || urlParams.has('resetseats')) {
     await resetSeats();
     return;
   }
 
-  // Show loading state
   updateSeatsUILoading();
 
-  // Fetch real count from Telegram
   let remote = await fetchRemoteSeats();
 
   if (!remote) {
-    // No counter exists yet — initialize with 4 (as per Update3: 4 already registered)
+
     remote = await initializeRemoteCounter(4);
   }
 
@@ -180,12 +162,10 @@ async function initSeatsManager() {
 
   updateSeatsUI(currentCounterState.remaining, currentCounterState.registered);
 
-  // Check if user already registered (device-level check)
   if (hasAlreadyRegistered()) {
     showAlreadyRegistered();
   }
 
-  // Check if seats are full
   if (currentCounterState.remaining <= 0) {
     showSeatsFull();
   }
@@ -199,7 +179,7 @@ async function resetSeats() {
     currentCounterState = remote;
   }
   localStorage.removeItem(STORAGE_KEY_MY_REG);
-  // Also clear the old localStorage key if it exists
+
   localStorage.removeItem('canva_fest_registered_count');
   updateSeatsUI(MAX_SEATS, 0);
 
@@ -239,7 +219,6 @@ function initFooterSecretReset() {
   });
 }
 
-// ─── Update UI with seat data ───
 function updateSeatsUILoading() {
   const seatsBadgeText = document.getElementById('seatsBadgeText');
   const seatsText = document.getElementById('seatsText');
@@ -282,7 +261,6 @@ function updateSeatsUI(remaining, registered) {
     seatsProgressFill.style.width = `${percentage}%`;
   }
 
-  // Update hero badge on index page
   const heroBadgeText = document.getElementById('heroBadgeText');
   const heroBadgeDot = document.getElementById('heroBadgeDot');
   if (heroBadgeText) {
@@ -295,7 +273,6 @@ function updateSeatsUI(remaining, registered) {
     }
   }
 
-  // Update hero full banner on index page
   const heroFullBanner = document.getElementById('heroFullBanner');
   if (heroFullBanner) {
     if (remaining <= 0) {
@@ -305,7 +282,6 @@ function updateSeatsUI(remaining, registered) {
     }
   }
 
-  // Handle form/closed card visibility on register page
   const formCard = document.getElementById('formCard');
   const closedCard = document.getElementById('closedCard');
   const seatsBanner = document.getElementById('seatsBanner');
@@ -323,7 +299,6 @@ function updateSeatsUI(remaining, registered) {
   }
 }
 
-// ─── Show "Already Registered" card ───
 function showAlreadyRegistered() {
   const formCard = document.getElementById('formCard');
   const alreadyCard = document.getElementById('alreadyRegisteredCard');
@@ -347,14 +322,12 @@ function showAlreadyRegistered() {
   alreadyCard.classList.add('visible');
 }
 
-// ─── Show "Seats Full" on index page ───
 function showSeatsFull() {
   const heroFullBanner = document.getElementById('heroFullBanner');
   if (heroFullBanner) {
     heroFullBanner.classList.add('visible');
   }
 
-  // Also update register page
   const formCard = document.getElementById('formCard');
   const closedCard = document.getElementById('closedCard');
   const seatsBanner = document.getElementById('seatsBanner');
@@ -365,10 +338,6 @@ function showSeatsFull() {
     closedCard.classList.add('visible');
   }
 }
-
-/* ═══════════════════════════════════════════════
-   SKELETON LOADING
-   ═══════════════════════════════════════════════ */
 
 function initSkeletonLoading() {
   const skeleton = document.querySelector('.skeleton-wrapper');
@@ -398,10 +367,6 @@ function initSkeletonLoading() {
   });
 }
 
-/* ═══════════════════════════════════════════════
-   NAVIGATION SCROLL
-   ═══════════════════════════════════════════════ */
-
 function initNavScroll() {
   const nav = document.querySelector('.nav');
   if (!nav) return;
@@ -414,10 +379,6 @@ function initNavScroll() {
     }
   }, { passive: true });
 }
-
-/* ═══════════════════════════════════════════════
-   FADE-IN OBSERVER
-   ═══════════════════════════════════════════════ */
 
 function initFadeInObserver() {
   const observer = new IntersectionObserver(
@@ -443,10 +404,6 @@ function initFadeInObserver() {
   });
 }
 
-/* ═══════════════════════════════════════════════
-   RIPPLE BUTTONS
-   ═══════════════════════════════════════════════ */
-
 function initRippleButtons() {
   document.querySelectorAll('.btn--primary').forEach(btn => {
     btn.addEventListener('click', function (e) {
@@ -468,10 +425,6 @@ function initRippleButtons() {
   });
 }
 
-/* ═══════════════════════════════════════════════
-   REGISTRATION FORM
-   ═══════════════════════════════════════════════ */
-
 function initRegistrationForm() {
   const form = document.getElementById('registerForm');
   const formCard = document.getElementById('formCard');
@@ -483,7 +436,6 @@ function initRegistrationForm() {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Re-fetch latest seats before submitting
     const latestSeats = await fetchRemoteSeats();
     if (latestSeats) {
       currentCounterState = latestSeats;
@@ -522,22 +474,18 @@ function initRegistrationForm() {
     submitBtn.innerHTML = '<span class="btn-spinner"></span> Submitting...';
 
     try {
-      // 1. Send registration to Telegram
+
       await sendToTelegram(formData);
 
-      // 2. Update remote counter
       const newRegistered = currentCounterState.registered + 1;
       await updateRemoteCounter(newRegistered, currentCounterState.messageId);
       currentCounterState.registered = newRegistered;
       currentCounterState.remaining = Math.max(0, MAX_SEATS - newRegistered);
 
-      // 3. Update UI
       updateSeatsUI(currentCounterState.remaining, currentCounterState.registered);
 
-      // 4. Save registration locally (for "already registered" detection)
       saveMyRegistration(formData);
 
-      // 5. Show success
       showSuccess(formCard, successCard, formData);
     } catch (error) {
       console.error('Submission failed:', error);
@@ -661,10 +609,6 @@ function showSuccess(formCard, successCard, data) {
   launchConfetti();
 }
 
-/* ═══════════════════════════════════════════════
-   TELEGRAM BOT INTEGRATION
-   ═══════════════════════════════════════════════ */
-
 async function sendToTelegram(data) {
   const timestamp = new Date().toLocaleString('en-IN', {
     timeZone: 'Asia/Kolkata',
@@ -717,10 +661,6 @@ async function sendToTelegram(data) {
   return response.json();
 }
 
-/* ═══════════════════════════════════════════════
-   CONFETTI
-   ═══════════════════════════════════════════════ */
-
 function launchConfetti() {
   const container = document.createElement('div');
   container.className = 'confetti-container';
@@ -757,10 +697,6 @@ function launchConfetti() {
     container.remove();
   }, 4500);
 }
-
-/* ═══════════════════════════════════════════════
-   UTILITIES
-   ═══════════════════════════════════════════════ */
 
 function escapeMarkdown(text) {
   return String(text).replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
