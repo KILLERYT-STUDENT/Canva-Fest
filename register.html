@@ -44,8 +44,8 @@
       </a>
       <ul class="nav__links">
         <li><a href="index.html" class="nav__link">Home</a></li>
-        <li><a href="index.html#about" class="nav__link">About</a></li>
         <li><a href="index.html#details" class="nav__link">Details</a></li>
+        <li><a href="rules.html" class="nav__link">Rules</a></li>
       </ul>
     </div>
   </nav>
@@ -68,14 +68,42 @@
           <div class="seats-info">
             <span class="seats-badge" id="seatsBadge">
               <span class="seats-badge__dot"></span>
-              <span id="seatsBadgeText">15 Seats Available</span>
+              <span id="seatsBadgeText">Loading...</span>
             </span>
-            <span class="seats-text" id="seatsText">Max 15 Teams</span>
+            <span class="seats-text" id="seatsText">Fetching seat data...</span>
           </div>
           <div class="seats-progress-track">
             <div class="seats-progress-fill" id="seatsProgressFill" style="width: 100%;"></div>
           </div>
         </div>
+      </div>
+
+      <!-- Already Registered Card -->
+      <div class="glass-card glass-card--strong already-registered-card" id="alreadyRegisteredCard">
+        <div class="already-reg__icon">✅</div>
+        <h2 class="already-reg__title">You're Already Registered!</h2>
+        <p class="already-reg__subtitle">
+          Your team is all set for Canva Fest 2026. No need to register again.
+        </p>
+
+        <div class="success__details">
+          <div class="success__detail-row">
+            <span class="success__detail-label">Category</span>
+            <span class="success__detail-value" id="arCategory">—</span>
+          </div>
+          <div class="success__detail-row">
+            <span class="success__detail-label">Member 1</span>
+            <span class="success__detail-value" id="arMember1">—</span>
+          </div>
+          <div class="success__detail-row">
+            <span class="success__detail-label">Member 2</span>
+            <span class="success__detail-value" id="arMember2">—</span>
+          </div>
+        </div>
+
+        <a href="index.html" class="btn btn--glass" style="width: 100%; justify-content: center;">
+          ← Back to Home
+        </a>
       </div>
 
       <div class="glass-card glass-card--strong register__form-card fade-in fade-in-delay-1" id="formCard">
@@ -286,7 +314,7 @@
   
   <footer class="footer" style="margin-top: 0;">
     <p class="footer__text">
-      Made By <span class="heart">♥</span> by <span>Cyber Head & Head Prefect</span> &nbsp;·&nbsp; 
+      Made with <span class="heart">♥</span> by <span>Cyber Head & Head Prefect</span> &nbsp;·&nbsp; 
     </p>
   </footer>
 

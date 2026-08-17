@@ -650,6 +650,57 @@ input, select, textarea {
   box-shadow: var(--glass-shadow);
 }
 
+/* Highlighted Button — Rules */
+.btn--highlight {
+  background: var(--glass-bg-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 2px solid var(--canva-purple);
+  color: var(--canva-purple);
+  font-weight: 700;
+}
+
+.btn--highlight:hover {
+  background: linear-gradient(135deg, rgba(123, 47, 247, 0.1), rgba(0, 196, 204, 0.1));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(123, 47, 247, 0.2);
+}
+
+/* Highlighted Glow Button — Learn More */
+.btn--highlight-glow {
+  background: linear-gradient(135deg, rgba(0, 196, 204, 0.15), rgba(123, 47, 247, 0.15));
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 2px solid var(--canva-teal);
+  color: var(--gray-900);
+  font-weight: 700;
+  animation: glowPulse 2s ease-in-out infinite;
+  position: relative;
+}
+
+.btn--highlight-glow::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--canva-teal), var(--canva-purple));
+  z-index: -1;
+  opacity: 0.3;
+  filter: blur(8px);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.btn--highlight-glow:hover {
+  background: linear-gradient(135deg, rgba(0, 196, 204, 0.25), rgba(123, 47, 247, 0.25));
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 8px 30px rgba(0, 196, 204, 0.3);
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
 .btn__icon {
   font-size: var(--font-size-lg);
   transition: transform var(--transition-fast);
@@ -657,6 +708,31 @@ input, select, textarea {
 
 .btn:hover .btn__icon {
   transform: translateX(3px);
+}
+
+/* Hero — Seats Full Banner */
+.hero__full-banner {
+  margin-top: var(--space-xl);
+  padding: var(--space-md) var(--space-lg);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+  border: 1.5px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: #dc2626;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.hero__full-banner.visible {
+  display: flex;
+  animation: successFadeIn 0.5s ease;
+}
+
+.hero__full-icon {
+  font-size: 1.2rem;
 }
 
 .section {
@@ -700,51 +776,7 @@ input, select, textarea {
   line-height: 1.7;
 }
 
-.about__card {
-  padding: var(--space-3xl);
-  display: flex;
-  align-items: center;
-  gap: var(--space-3xl);
-}
-
-.about__image-wrapper {
-  flex-shrink: 0;
-  width: 200px;
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--canva-gradient-soft);
-  border-radius: var(--radius-2xl);
-  border: 1px solid rgba(0, 196, 204, 0.15);
-}
-
-.about__image {
-  width: 140px;
-  height: 140px;
-  object-fit: contain;
-}
-
-.about__text {
-  flex: 1;
-}
-
-.about__text h3 {
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  color: var(--gray-900);
-  margin-bottom: var(--space-md);
-}
-
-.about__text p {
-  color: var(--gray-500);
-  line-height: 1.8;
-  margin-bottom: var(--space-md);
-}
-
-.about__text p:last-child {
-  margin-bottom: 0;
-}
+/* (Removed unused .about__ styles — sections deleted per Update2) */
 
 .details__grid {
   display: grid;
@@ -847,48 +879,219 @@ input, select, textarea {
   line-height: 1.7;
 }
 
-.teammates__card {
-  padding: var(--space-3xl);
-  display: flex;
-  align-items: center;
-  gap: var(--space-3xl);
-  flex-direction: row-reverse;
+/* (Removed unused .teammates__ styles — sections deleted per Update2) */
+
+/* ═══════════════════════════════════════════════
+   ALREADY REGISTERED CARD
+   ═══════════════════════════════════════════════ */
+
+.already-registered-card {
+  padding: var(--space-3xl) var(--space-2xl);
+  text-align: center;
+  display: none;
 }
 
-.teammates__image-wrapper {
-  flex-shrink: 0;
-  width: 220px;
+.already-registered-card.visible {
+  display: block;
+  animation: successFadeIn 0.6s ease;
+}
+
+.already-reg__icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(0, 196, 204, 0.15), rgba(52, 211, 153, 0.1));
+  border: 1.5px solid rgba(0, 196, 204, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0 auto var(--space-lg);
+  font-size: 34px;
 }
 
-.teammates__image {
-  width: 200px;
-  height: auto;
-  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.08));
-  transition: transform var(--transition-spring);
-}
-
-.teammates__image:hover {
-  transform: scale(1.05);
-}
-
-.teammates__text {
-  flex: 1;
-}
-
-.teammates__text h3 {
+.already-reg__title {
   font-size: var(--font-size-2xl);
+  font-weight: 800;
+  color: var(--gray-900);
+  margin-bottom: var(--space-sm);
+}
+
+.already-reg__subtitle {
+  font-size: var(--font-size-base);
+  color: var(--gray-500);
+  margin-bottom: var(--space-xl);
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════
+   RULES PAGE STYLES
+   ═══════════════════════════════════════════════ */
+
+.rules-page {
+  min-height: 100vh;
+  padding: calc(var(--space-4xl) + 60px) var(--space-xl) var(--space-4xl);
+}
+
+.rules__container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.rules__header {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+}
+
+.rules__title {
+  font-size: var(--font-size-3xl);
+  font-weight: 800;
+  color: var(--gray-900);
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-sm);
+}
+
+.rules__subtitle {
+  font-size: var(--font-size-base);
+  color: var(--gray-400);
+}
+
+.rules__card {
+  padding: var(--space-2xl);
+  margin-bottom: var(--space-xl);
+}
+
+.rules__card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.rules__card-icon {
+  font-size: 1.8rem;
+}
+
+.rules__card-title {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  color: var(--gray-900);
+}
+
+.rules__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.rule-item {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
+}
+
+.rule-item__number {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--canva-gradient-soft);
+  border: 1px solid rgba(123, 47, 247, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  color: var(--canva-purple);
+}
+
+.rule-item__content h3 {
+  font-size: var(--font-size-base);
   font-weight: 700;
   color: var(--gray-900);
-  margin-bottom: var(--space-md);
+  margin-bottom: 2px;
 }
 
-.teammates__text p {
+.rule-item__content p {
+  font-size: var(--font-size-sm);
   color: var(--gray-500);
-  line-height: 1.8;
-  margin-bottom: var(--space-xl);
+  line-height: 1.7;
+}
+
+.rule-item__content strong {
+  color: var(--gray-700);
+}
+
+.rules__info-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.rules__info-box p {
+  font-size: var(--font-size-sm);
+  color: var(--gray-700);
+  line-height: 1.7;
+}
+
+.rules__warning {
+  padding: var(--space-md);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.05));
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: var(--radius-md);
+  color: #92400e !important;
+}
+
+.rules__judges-grid {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.judge-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
+  background: var(--canva-gradient-soft);
+  border: 1px solid rgba(123, 47, 247, 0.12);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.judge-chip__icon {
+  font-size: 1.2rem;
+}
+
+.rules__quick-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.quick-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-md);
+  background: var(--canva-gradient-soft);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(0, 196, 204, 0.1);
+}
+
+.quick-item__label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--gray-400);
+}
+
+.quick-item__value {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--gray-900);
 }
 
 .footer {
@@ -1496,34 +1699,14 @@ input, select, textarea {
     font-size: var(--font-size-3xl);
   }
 
-  .about__card {
+  /* (Removed unused responsive .about__ and .teammates__ styles) */
+
+  .rules__quick-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rules__judges-grid {
     flex-direction: column;
-    text-align: center;
-    padding: var(--space-xl);
-  }
-
-  .about__image-wrapper {
-    width: 150px;
-    height: 150px;
-  }
-
-  .about__image {
-    width: 100px;
-    height: 100px;
-  }
-
-  .teammates__card {
-    flex-direction: column;
-    text-align: center;
-    padding: var(--space-xl);
-  }
-
-  .teammates__image-wrapper {
-    width: 160px;
-  }
-
-  .teammates__image {
-    width: 150px;
   }
 
   .details__grid {

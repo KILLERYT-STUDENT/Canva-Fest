@@ -1,0 +1,13 @@
+Update 17 August 2026, Time 8:53 Pm
+
+Yes Everthing is fine And Today I open the web for reg, and i got to many errors in my web.
+when student start doing reg, the reg details are coming on my telegram bot but, the web is not showing that how many reg happend till, is constant of 14/15.
+student doing from their own device so i think, my web got confuess, and only show the reg happen seat 1 only that device,
+Till 4 reg done so do it from there  the countdown should be update from the web not from my side.
+
+Also Higlight the Learn More Button that they know more about the Canva Fest
+
+I have add a Canva_Fest_Rules.pdf analyse that document and Make a page for rules and show the rules in text not the pdf,Rule button next to Reg and Learn more also highlisht it,
+
+Also Check That, if a Student has already Reg, and he go again on the web it show already reg,
+ANd one func more that if the 15 reg full Then the Web WIll show Seats Have been Full.
