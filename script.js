@@ -135,8 +135,29 @@ function saveMyRegistration(data) {
 
 // ─── Seats Manager Init ───
 async function initSeatsManager() {
-  // URL param reset (admin use)
   const urlParams = new URLSearchParams(window.location.search);
+
+  // Admin URL helpers:
+  // 1. ?clearreg -> clears local test registration from this browser
+  if (urlParams.has('clearreg')) {
+    localStorage.removeItem(STORAGE_KEY_MY_REG);
+  }
+
+  // 2. ?setregistered=4 -> sets exact registered count in Telegram
+  if (urlParams.has('setregistered')) {
+    const targetCount = parseInt(urlParams.get('setregistered'), 10);
+    if (!isNaN(targetCount) && targetCount >= 0 && targetCount <= MAX_SEATS) {
+      const current = await fetchRemoteSeats();
+      if (current && current.messageId) {
+        await updateRemoteCounter(targetCount, current.messageId);
+      } else {
+        await initializeRemoteCounter(targetCount);
+      }
+      showToast(`⚡ Set registered teams to ${targetCount} (${MAX_SEATS - targetCount} seats left)`, 'info');
+    }
+  }
+
+  // 3. ?reset or ?resetseats -> resets to 0
   if (urlParams.has('reset') || urlParams.has('resetseats')) {
     await resetSeats();
     return;
