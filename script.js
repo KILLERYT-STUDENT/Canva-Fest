@@ -11,11 +11,82 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const MAX_SEATS = 15;
+const CATEGORIES = {
+  poster: {
+    key: 'poster',
+    name: 'Poster Making',
+    badgeId: 'catSeatPoster',
+    max: 10,
+    defaultCount: 6
+  },
+  ppt: {
+    key: 'ppt',
+    name: 'PPT',
+    badgeId: 'catSeatPPT',
+    max: 6,
+    defaultCount: 3
+  },
+  video: {
+    key: 'video',
+    name: 'Video Making',
+    badgeId: 'catSeatVideo',
+    max: 5,
+    defaultCount: 2
+  }
+};
+
+const TOTAL_MAX_SEATS = 21;
 const TELEGRAM_BOT_TOKEN = '8784295656:AAH-NTy1SBqH8PmdyHUckPl3rZ1iDzRzM5I';
 const TELEGRAM_CHAT_ID = '5816487553';
 const COUNTER_PREFIX = 'CANVA_FEST_COUNTER:';
 const STORAGE_KEY_MY_REG = 'canva_fest_my_registration';
+
+function getCategoryKeyByName(name) {
+  if (!name) return null;
+  const n = name.toLowerCase();
+  if (n.includes('poster')) return 'poster';
+  if (n.includes('ppt') || n.includes('presentation')) return 'ppt';
+  if (n.includes('video')) return 'video';
+  return null;
+}
+
+function parseCounterText(text) {
+  const result = {
+    poster: CATEGORIES.poster.defaultCount,
+    ppt: CATEGORIES.ppt.defaultCount,
+    video: CATEGORIES.video.defaultCount
+  };
+
+  if (!text || !text.includes(COUNTER_PREFIX)) return result;
+
+  const dataPart = text.split(COUNTER_PREFIX)[1].trim();
+
+  if (dataPart.includes('poster=') || dataPart.includes('ppt=') || dataPart.includes('video=')) {
+    const pairs = dataPart.split(',');
+    pairs.forEach(pair => {
+      const [k, v] = pair.split('=').map(s => s.trim().toLowerCase());
+      const num = parseInt(v, 10);
+      if (!isNaN(num) && result[k] !== undefined) {
+        result[k] = Math.max(0, Math.min(CATEGORIES[k].max, num));
+      }
+    });
+  } else {
+    const totalNum = parseInt(dataPart, 10);
+    if (!isNaN(totalNum)) {
+      if (totalNum === 0) {
+        result.poster = 0;
+        result.ppt = 0;
+        result.video = 0;
+      }
+    }
+  }
+
+  return result;
+}
+
+function serializeCounts(counts) {
+  return `📊 ${COUNTER_PREFIX}poster=${counts.poster},ppt=${counts.ppt},video=${counts.video}`;
+}
 
 async function fetchRemoteSeats() {
   try {
@@ -25,17 +96,16 @@ async function fetchRemoteSeats() {
     const data = await res.json();
     if (data.ok && data.result.pinned_message) {
       const text = data.result.pinned_message.text || '';
-      if (text.includes(COUNTER_PREFIX)) {
-        const countStr = text.split(COUNTER_PREFIX)[1].trim();
-        const registered = parseInt(countStr, 10);
-        if (!isNaN(registered)) {
-          return {
-            registered,
-            remaining: Math.max(0, MAX_SEATS - registered),
-            messageId: data.result.pinned_message.message_id
-          };
-        }
-      }
+      const counts = parseCounterText(text);
+      const totalRegistered = counts.poster + counts.ppt + counts.video;
+      const totalRemaining = Math.max(0, TOTAL_MAX_SEATS - totalRegistered);
+
+      return {
+        counts,
+        totalRegistered,
+        totalRemaining,
+        messageId: data.result.pinned_message.message_id
+      };
     }
     return null;
   } catch (e) {
@@ -44,8 +114,14 @@ async function fetchRemoteSeats() {
   }
 }
 
-async function initializeRemoteCounter(registeredCount) {
+async function initializeRemoteCounter(initialCounts) {
   try {
+    const counts = initialCounts || {
+      poster: CATEGORIES.poster.defaultCount,
+      ppt: CATEGORIES.ppt.defaultCount,
+      video: CATEGORIES.video.defaultCount
+    };
+
     const res = await fetch(
       `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
       {
@@ -53,13 +129,12 @@ async function initializeRemoteCounter(registeredCount) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: TELEGRAM_CHAT_ID,
-          text: `📊 ${COUNTER_PREFIX}${registeredCount}`
+          text: serializeCounts(counts)
         })
       }
     );
     const data = await res.json();
     if (data.ok) {
-
       await fetch(
         `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/pinChatMessage`,
         {
@@ -72,9 +147,12 @@ async function initializeRemoteCounter(registeredCount) {
           })
         }
       );
+      const totalRegistered = counts.poster + counts.ppt + counts.video;
+      const totalRemaining = Math.max(0, TOTAL_MAX_SEATS - totalRegistered);
       return {
-        registered: registeredCount,
-        remaining: Math.max(0, MAX_SEATS - registeredCount),
+        counts,
+        totalRegistered,
+        totalRemaining,
         messageId: data.result.message_id
       };
     }
@@ -84,9 +162,8 @@ async function initializeRemoteCounter(registeredCount) {
   return null;
 }
 
-async function updateRemoteCounter(newRegisteredCount, messageId) {
+async function updateRemoteCounter(newCounts, messageId) {
   try {
-
     const latest = await fetchRemoteSeats();
     const actualMsgId = latest ? latest.messageId : messageId;
 
@@ -98,7 +175,7 @@ async function updateRemoteCounter(newRegisteredCount, messageId) {
         body: JSON.stringify({
           chat_id: TELEGRAM_CHAT_ID,
           message_id: actualMsgId,
-          text: `📊 ${COUNTER_PREFIX}${newRegisteredCount}`
+          text: serializeCounts(newCounts)
         })
       }
     );
@@ -107,7 +184,12 @@ async function updateRemoteCounter(newRegisteredCount, messageId) {
   }
 }
 
-let currentCounterState = { registered: 0, remaining: MAX_SEATS, messageId: null };
+let currentCounterState = {
+  counts: { poster: 6, ppt: 3, video: 2 },
+  totalRegistered: 11,
+  totalRemaining: 10,
+  messageId: null
+};
 
 function hasAlreadyRegistered() {
   return localStorage.getItem(STORAGE_KEY_MY_REG) !== null;
@@ -129,17 +211,23 @@ async function initSeatsManager() {
     localStorage.removeItem(STORAGE_KEY_MY_REG);
   }
 
-  if (urlParams.has('setregistered')) {
-    const targetCount = parseInt(urlParams.get('setregistered'), 10);
-    if (!isNaN(targetCount) && targetCount >= 0 && targetCount <= MAX_SEATS) {
-      const current = await fetchRemoteSeats();
-      if (current && current.messageId) {
-        await updateRemoteCounter(targetCount, current.messageId);
-      } else {
-        await initializeRemoteCounter(targetCount);
+  if (urlParams.has('setcounts')) {
+    const param = urlParams.get('setcounts');
+    const counts = { poster: 6, ppt: 3, video: 2 };
+    param.split(',').forEach(part => {
+      const [k, v] = part.split(':').map(s => s.trim().toLowerCase());
+      const num = parseInt(v, 10);
+      if (!isNaN(num) && counts[k] !== undefined) {
+        counts[k] = num;
       }
-      showToast(`⚡ Set registered teams to ${targetCount} (${MAX_SEATS - targetCount} seats left)`, 'info');
+    });
+    const current = await fetchRemoteSeats();
+    if (current && current.messageId) {
+      await updateRemoteCounter(counts, current.messageId);
+    } else {
+      await initializeRemoteCounter(counts);
     }
+    showToast(`⚡ Set counts: Poster: ${counts.poster}, PPT: ${counts.ppt}, Video: ${counts.video}`, 'info');
   }
 
   if (urlParams.has('reset') || urlParams.has('resetseats')) {
@@ -152,21 +240,24 @@ async function initSeatsManager() {
   let remote = await fetchRemoteSeats();
 
   if (!remote) {
-
-    remote = await initializeRemoteCounter(4);
+    remote = await initializeRemoteCounter({
+      poster: CATEGORIES.poster.defaultCount,
+      ppt: CATEGORIES.ppt.defaultCount,
+      video: CATEGORIES.video.defaultCount
+    });
   }
 
   if (remote) {
     currentCounterState = remote;
   }
 
-  updateSeatsUI(currentCounterState.remaining, currentCounterState.registered);
+  updateSeatsUI(currentCounterState);
 
   if (hasAlreadyRegistered()) {
     showAlreadyRegistered();
   }
 
-  if (currentCounterState.remaining <= 0) {
+  if (currentCounterState.totalRemaining <= 0) {
     showSeatsFull();
   }
 
@@ -174,14 +265,14 @@ async function initSeatsManager() {
 }
 
 async function resetSeats() {
-  const remote = await initializeRemoteCounter(0);
+  const zeroCounts = { poster: 0, ppt: 0, video: 0 };
+  const remote = await initializeRemoteCounter(zeroCounts);
   if (remote) {
     currentCounterState = remote;
   }
   localStorage.removeItem(STORAGE_KEY_MY_REG);
-
   localStorage.removeItem('canva_fest_registered_count');
-  updateSeatsUI(MAX_SEATS, 0);
+  updateSeatsUI(currentCounterState);
 
   const formCard = document.getElementById('formCard');
   const closedCard = document.getElementById('closedCard');
@@ -193,7 +284,7 @@ async function resetSeats() {
   if (alreadyCard) alreadyCard.classList.remove('visible');
   if (seatsBanner) seatsBanner.style.display = 'flex';
 
-  showToast('⚡ Seats counter reset to 15!', 'info');
+  showToast('⚡ Seats counter reset to zero!', 'info');
 }
 window.resetSeats = resetSeats;
 
@@ -229,8 +320,11 @@ function updateSeatsUILoading() {
   if (heroBadgeText) heroBadgeText.textContent = 'Checking availability...';
 }
 
-function updateSeatsUI(remaining, registered) {
-  const percentage = Math.max(0, Math.min(100, (remaining / MAX_SEATS) * 100));
+function updateSeatsUI(state) {
+  const remaining = state.totalRemaining;
+  const registered = state.totalRegistered;
+  const counts = state.counts;
+  const percentage = Math.max(0, Math.min(100, (remaining / TOTAL_MAX_SEATS) * 100));
 
   const seatsBadgeText = document.getElementById('seatsBadgeText');
   const seatsText = document.getElementById('seatsText');
@@ -241,11 +335,8 @@ function updateSeatsUI(remaining, registered) {
     if (remaining <= 0) {
       seatsBadgeText.textContent = '0 Seats Left';
       if (seatsBadge) seatsBadge.classList.add('seats-badge--urgent');
-    } else if (remaining === 1) {
-      seatsBadgeText.textContent = 'Only 1 Seat Left!';
-      if (seatsBadge) seatsBadge.classList.add('seats-badge--urgent');
-    } else if (remaining <= 5) {
-      seatsBadgeText.textContent = `${remaining} Seats Left — Hurry!`;
+    } else if (remaining <= 3) {
+      seatsBadgeText.textContent = `Only ${remaining} Seats Left!`;
       if (seatsBadge) seatsBadge.classList.add('seats-badge--urgent');
     } else {
       seatsBadgeText.textContent = `${remaining} Seats Available`;
@@ -254,7 +345,7 @@ function updateSeatsUI(remaining, registered) {
   }
 
   if (seatsText) {
-    seatsText.textContent = `Max 15 Teams · ${registered} Registered`;
+    seatsText.textContent = `Max ${TOTAL_MAX_SEATS} Teams · ${registered} Registered`;
   }
 
   if (seatsProgressFill) {
@@ -282,6 +373,8 @@ function updateSeatsUI(remaining, registered) {
     }
   }
 
+  updateCategoryCardsUI(counts);
+
   const formCard = document.getElementById('formCard');
   const closedCard = document.getElementById('closedCard');
   const seatsBanner = document.getElementById('seatsBanner');
@@ -297,6 +390,47 @@ function updateSeatsUI(remaining, registered) {
       closedCard.classList.remove('visible');
     }
   }
+}
+
+function updateCategoryCardsUI(counts) {
+  Object.keys(CATEGORIES).forEach(catKey => {
+    const cat = CATEGORIES[catKey];
+    const registered = counts[catKey] || 0;
+    const catRemaining = Math.max(0, cat.max - registered);
+
+    const badgeEl = document.getElementById(cat.badgeId);
+    const cardEl = document.querySelector(`.mcq-card[data-category="${catKey}"]`);
+    const radioEl = cardEl ? cardEl.querySelector('input[type="radio"]') : null;
+
+    if (badgeEl) {
+      badgeEl.className = 'mcq-card__seat-badge';
+      if (catRemaining <= 0) {
+        badgeEl.textContent = `🔒 Full (${cat.max}/${cat.max})`;
+        badgeEl.classList.add('mcq-card__seat-badge--full');
+      } else if (catRemaining <= 2) {
+        badgeEl.textContent = `⚡ Only ${catRemaining} Left!`;
+        badgeEl.classList.add('mcq-card__seat-badge--urgent');
+      } else {
+        badgeEl.textContent = `${catRemaining} Seats Left`;
+      }
+    }
+
+    if (cardEl) {
+      if (catRemaining <= 0) {
+        cardEl.classList.add('mcq-card--locked');
+        cardEl.classList.remove('selected');
+        if (radioEl) {
+          radioEl.disabled = true;
+          radioEl.checked = false;
+        }
+      } else {
+        cardEl.classList.remove('mcq-card--locked');
+        if (radioEl) {
+          radioEl.disabled = false;
+        }
+      }
+    }
+  });
 }
 
 function showAlreadyRegistered() {
@@ -439,21 +573,29 @@ function initRegistrationForm() {
     const latestSeats = await fetchRemoteSeats();
     if (latestSeats) {
       currentCounterState = latestSeats;
-      updateSeatsUI(latestSeats.remaining, latestSeats.registered);
+      updateSeatsUI(latestSeats);
     }
 
-    if (currentCounterState.remaining <= 0) {
+    if (currentCounterState.totalRemaining <= 0) {
       showSeatsFull();
-      showToast('Sorry! All seats are now filled.', 'error');
+      showToast('Sorry! All seats across all categories are filled.', 'error');
       return;
     }
 
     if (!validateForm(form)) return;
 
     const selectedCategoryInput = form.querySelector('input[name="eventCategory"]:checked');
+    const categoryName = selectedCategoryInput ? selectedCategoryInput.value : 'Not Selected';
+    const catKey = getCategoryKeyByName(categoryName);
+
+    if (catKey && currentCounterState.counts[catKey] >= CATEGORIES[catKey].max) {
+      showToast(`⚠️ ${CATEGORIES[catKey].name} is full (Max ${CATEGORIES[catKey].max} reached). Please choose another category!`, 'error');
+      updateCategoryCardsUI(currentCounterState.counts);
+      return;
+    }
 
     const formData = {
-      category: selectedCategoryInput ? selectedCategoryInput.value : 'Not Selected',
+      category: categoryName,
       member1: {
         name: form.querySelector('#member1Name').value.trim(),
         class: form.querySelector('#member1Class').value,
@@ -474,15 +616,20 @@ function initRegistrationForm() {
     submitBtn.innerHTML = '<span class="btn-spinner"></span> Submitting...';
 
     try {
+      const newCounts = { ...currentCounterState.counts };
+      if (catKey && newCounts[catKey] !== undefined) {
+        newCounts[catKey] = newCounts[catKey] + 1;
+      }
 
-      await sendToTelegram(formData);
+      await sendToTelegram(formData, newCounts);
 
-      const newRegistered = currentCounterState.registered + 1;
-      await updateRemoteCounter(newRegistered, currentCounterState.messageId);
-      currentCounterState.registered = newRegistered;
-      currentCounterState.remaining = Math.max(0, MAX_SEATS - newRegistered);
+      await updateRemoteCounter(newCounts, currentCounterState.messageId);
 
-      updateSeatsUI(currentCounterState.remaining, currentCounterState.registered);
+      currentCounterState.counts = newCounts;
+      currentCounterState.totalRegistered = newCounts.poster + newCounts.ppt + newCounts.video;
+      currentCounterState.totalRemaining = Math.max(0, TOTAL_MAX_SEATS - currentCounterState.totalRegistered);
+
+      updateSeatsUI(currentCounterState);
 
       saveMyRegistration(formData);
 
@@ -510,14 +657,26 @@ function initMCQCards(form) {
 
   mcqCards.forEach(card => {
     const radio = card.querySelector('input[type="radio"]');
+    const catKey = card.getAttribute('data-category');
 
-    card.addEventListener('click', () => {
+    card.addEventListener('click', (e) => {
+      if (card.classList.contains('mcq-card--locked') || (radio && radio.disabled)) {
+        e.preventDefault();
+        const catName = CATEGORIES[catKey] ? CATEGORIES[catKey].name : 'This category';
+        const maxLimit = CATEGORIES[catKey] ? CATEGORIES[catKey].max : '';
+        showToast(`⚠️ ${catName} is full (${maxLimit}/${maxLimit} registered). Please choose another category!`, 'error');
+        card.style.animation = 'none';
+        void card.offsetWidth;
+        card.style.animation = 'shake 0.4s ease';
+        return;
+      }
+
       mcqCards.forEach(c => {
         c.classList.remove('selected', 'error');
       });
 
       card.classList.add('selected');
-      radio.checked = true;
+      if (radio) radio.checked = true;
 
       if (categoryError) {
         categoryError.classList.remove('visible');
@@ -535,11 +694,28 @@ function validateForm(form) {
 
   if (!selectedCategory) {
     isValid = false;
-    if (categoryError) categoryError.classList.add('visible');
-    mcqCards.forEach(card => card.classList.add('error'));
+    if (categoryError) {
+      categoryError.textContent = 'Please select a category to participate';
+      categoryError.classList.add('visible');
+    }
+    mcqCards.forEach(card => {
+      if (!card.classList.contains('mcq-card--locked')) {
+        card.classList.add('error');
+      }
+    });
   } else {
-    if (categoryError) categoryError.classList.remove('visible');
-    mcqCards.forEach(card => card.classList.remove('error'));
+    const catKey = getCategoryKeyByName(selectedCategory.value);
+    if (catKey && currentCounterState.counts[catKey] >= CATEGORIES[catKey].max) {
+      isValid = false;
+      if (categoryError) {
+        categoryError.textContent = `${CATEGORIES[catKey].name} is full! Please choose another category.`;
+        categoryError.classList.add('visible');
+      }
+      showToast(`⚠️ ${CATEGORIES[catKey].name} is full! Please choose another category.`, 'error');
+    } else {
+      if (categoryError) categoryError.classList.remove('visible');
+      mcqCards.forEach(card => card.classList.remove('error'));
+    }
   }
 
   const phoneRegex = /^\d{10}$/;
@@ -609,14 +785,19 @@ function showSuccess(formCard, successCard, data) {
   launchConfetti();
 }
 
-async function sendToTelegram(data) {
+async function sendToTelegram(data, newCounts) {
   const timestamp = new Date().toLocaleString('en-IN', {
     timeZone: 'Asia/Kolkata',
     dateStyle: 'medium',
     timeStyle: 'short'
   });
 
-  const remaining = currentCounterState.remaining - 1;
+  const totalRegistered = newCounts.poster + newCounts.ppt + newCounts.video;
+  const totalRemaining = Math.max(0, TOTAL_MAX_SEATS - totalRegistered);
+
+  const posterLeft = Math.max(0, CATEGORIES.poster.max - newCounts.poster);
+  const pptLeft = Math.max(0, CATEGORIES.ppt.max - newCounts.ppt);
+  const videoLeft = Math.max(0, CATEGORIES.video.max - newCounts.video);
 
   const message = `
 🎨 *New Canva Fest Registration*
@@ -636,7 +817,12 @@ async function sendToTelegram(data) {
     Reg No: ${escapeMarkdown(data.member2.regNo)}
     📱 Phone: ${escapeMarkdown(data.member2.phone)}
 
-⚡ *Seats Left After This Reg:* ${remaining < 0 ? 0 : remaining} / ${MAX_SEATS}
+📊 *Category Seats Status:*
+    🖼️ Poster Making: ${posterLeft} / ${CATEGORIES.poster.max} left
+    📊 PPT: ${pptLeft} / ${CATEGORIES.ppt.max} left
+    🎥 Video Making: ${videoLeft} / ${CATEGORIES.video.max} left
+
+⚡ *Overall Seats Left:* ${totalRemaining} / ${TOTAL_MAX_SEATS} (Total Registered: ${totalRegistered})
 🕐 *Submitted:* ${escapeMarkdown(timestamp)}
 ━━━━━━━━━━━━━━━━━━━━━
   `.trim();
@@ -723,10 +909,6 @@ function showToast(message, type = 'info') {
     setTimeout(() => toast.remove(), 400);
   }, 5000);
 }
-
-/* ═══════════════════════════════════════════════
-   INJECTED STYLES
-   ═══════════════════════════════════════════════ */
 
 const shakeStyle = document.createElement('style');
 shakeStyle.textContent = `

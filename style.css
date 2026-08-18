@@ -1358,6 +1358,68 @@ input, select, textarea {
   animation: shake 0.4s ease;
 }
 
+.mcq-card__seat-badge {
+  margin-top: var(--space-xs);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(0, 196, 204, 0.12);
+  color: #028487;
+  border: 1px solid rgba(0, 196, 204, 0.25);
+  transition: all var(--transition-fast);
+}
+
+.mcq-card__seat-badge--urgent {
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.mcq-card__seat-badge--full {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.mcq-card--locked {
+  opacity: 0.6;
+  cursor: not-allowed !important;
+  background: rgba(243, 244, 246, 0.6) !important;
+  border-color: rgba(209, 213, 219, 0.8) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.mcq-card--locked:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+.mcq-card--locked .mcq-card__icon {
+  filter: grayscale(0.5);
+  transform: none !important;
+}
+
+.mcq-card--locked .mcq-card__radio-badge {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  position: relative;
+}
+
+.mcq-card--locked .mcq-card__radio-badge::after {
+  content: '✕';
+  color: #dc2626;
+  font-size: 10px;
+  font-weight: 900;
+  background: transparent;
+  transform: scale(1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .closed-card {
   padding: var(--space-3xl) var(--space-2xl);
   text-align: center;
