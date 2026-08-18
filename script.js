@@ -23,8 +23,8 @@ const CATEGORIES = {
     key: 'ppt',
     name: 'PPT',
     badgeId: 'catSeatPPT',
-    max: 6,
-    defaultCount: 3
+    max: 5,
+    defaultCount: 4
   },
   video: {
     key: 'video',
@@ -35,7 +35,7 @@ const CATEGORIES = {
   }
 };
 
-const TOTAL_MAX_SEATS = 21;
+const TOTAL_MAX_SEATS = 20;
 const TELEGRAM_BOT_TOKEN = '8784295656:AAH-NTy1SBqH8PmdyHUckPl3rZ1iDzRzM5I';
 const TELEGRAM_CHAT_ID = '5816487553';
 const COUNTER_PREFIX = 'CANVA_FEST_COUNTER:';
@@ -185,9 +185,9 @@ async function updateRemoteCounter(newCounts, messageId) {
 }
 
 let currentCounterState = {
-  counts: { poster: 6, ppt: 3, video: 2 },
-  totalRegistered: 11,
-  totalRemaining: 10,
+  counts: { poster: 6, ppt: 4, video: 2 },
+  totalRegistered: 12,
+  totalRemaining: 8,
   messageId: null
 };
 
